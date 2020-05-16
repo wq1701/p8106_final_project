@@ -23,7 +23,7 @@ rowTrain <- createDataPartition(y = data$diagnosis,
                                 list = FALSE)
 ```
 
-Classification Trees
+Tree-based methods
 *Cart*
 ```{r}
 ctrl <- trainControl(method = "repeatedcv",
