@@ -43,9 +43,8 @@ The variable 'bare_nucleoli' was recorded in the form of character and NA was de
 
 # Exploratary Analysis
 
-Here is the distribution of 
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height=4}
 data %>%
   keep(is.numeric) %>%  
   gather() %>% 
