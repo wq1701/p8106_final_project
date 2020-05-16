@@ -52,3 +52,18 @@ data %>%
   facet_wrap(~ key, scales = "free") +
   geom_histogram(bins = 10) 
 ```
+
+```{r}
+data %>% 
+  ggplot(aes(x = class, fill = class)) + 
+  geom_bar()
+```
+
+```{r}
+
+```
+
+
+# Models
+
+# Conclusions
