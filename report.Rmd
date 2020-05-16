@@ -50,10 +50,28 @@ data %>%
   gather() %>% 
   ggplot(aes(value)) +
   facet_wrap(~ key, scales = "free") +
-  geom_histogram(bins = 10) 
+  geom_histogram(bins = 10)
 ```
 
 ```{r}
+data %>% 
+  filter(class == "B") %>% 
+  keep(is.numeric) %>%  
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram(bins = 10) +
+  ggtitle("Benign Tumor")
+
+data %>% 
+  filter(class == "M") %>% 
+  keep(is.numeric) %>%  
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram(bins = 10) +
+  ggtitle("Malignant Tumor")
+
 data %>% 
   ggplot(aes(x = class, fill = class)) + 
   geom_bar()
@@ -65,5 +83,6 @@ data %>%
 
 
 # Models
+
 
 # Conclusions
