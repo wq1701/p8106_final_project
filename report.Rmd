@@ -1,0 +1,25 @@
+---
+title: "P8106 Final Report"
+output: pdf_document
+author: "Si Li, Weiwei Qi and Qimin Zhang"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(caret)
+library(rpart.plot)
+library(readxl)
+```
+
+```{r, include=FALSE}
+data = read_csv("data.csv") %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(-id, -x33)
+```
+
+```{r, include=FALSE}
+
+```
