@@ -41,14 +41,14 @@ ctrl <- trainControl(method = "repeatedcv",
                      summaryFunction = twoClassSummary,
                      classProbs = TRUE)
 set.seed(2020)
-glm.fit <- train(class~., data, 
-                 subset = rowTrain,
 
 glm.fit = train(class~., data, 
                 subset = rowTrain,
                  method = "glm",
                  metric = "ROC",
                  trControl = ctrl)
+
+varImp(glm.fit)
 ```
 
 *Regularized logistic regression*
@@ -66,27 +66,34 @@ glmn.fit <- train(class~., data,
 glmn_plot = plot(glmn.fit, xTrans = function(x) log(x), 
                  highlight = T)   
 glmn.fit$bestTune
+
+varImp(glmn.fit)
 ```
 
 Discriminant analysis
 *LDA*
 ```{r}
 set.seed(2020)
-lda.fit <- train(class~., data, 
+lda.fit <- train(class~., as.data.frame(data), 
                    subset = rowTrain,
                    method = "lda",
                    metric = "ROC",
                    trControl = ctrl)
+
+# need to convert data in lda to data frame, otherwise varImp doesnt work
+varImp(lda.fit) 
 ```
 
 *QDA*
 ```{r}
 set.seed(2020)
-qda.fit <- train(class~., data, 
+qda.fit <- train(class~., as.data.frame(data), 
                    subset = rowTrain,
                    method = "qda",
                    metric = "ROC",
                    trControl = ctrl)
+
+varImp(qda.fit)
 ```
 
 *Naive Bayes (NB)*
@@ -95,26 +102,30 @@ set.seed(2020)
 nbGrid <- expand.grid(usekernel = c(FALSE,TRUE),
                       fL = 1, 
                       adjust = seq(0.8, 10, by = .4))
-nb.fit <- train(class~., data, 
+nb.fit <- train(class~., as.data.frame(data), 
                   subset = rowTrain,
                   method = "nb",
                   tuneGrid = nbGrid,
                   metric = "ROC",
                   trControl = ctrl)
 nb_plot = plot(nb.fit, xTrans = function(x) log(x), 
-                 highlight = T)   
+                 highlight = T) 
+
+varImp(nb.fit)
 ```
 
 KNN
 ```{r, warning=FALSE}
 set.seed(2020)
-knn.fit <- train(class~., data, 
+knn.fit <- train(class~., as.data.frame(data), 
                    subset = rowTrain,
                    method = "knn",
                    preProcess = c("center","scale"),
                    tuneGrid = data.frame(k = seq(1,200,by=5)),
                    trControl = ctrl)
 knn_plot = ggplot(knn.fit, highlight = T)
+
+varImp(knn.fit)
 ```
 
 Tree-based methods
@@ -129,19 +140,26 @@ rpart.fit <- train(class~., data,
                    metric = "ROC")
 cart_plot = ggplot(rpart.fit, highlight = TRUE)
 rpart.plot(rpart.fit$finalModel)
+
+varImp(rpart.fit)
 ```
 
 #### CIT
 ```{r}
 set.seed(2020)
-ctree.fit <- train(class~., data, 
+ctree.fit <- train(class~., as.data.frame(data), 
                    subset = rowTrain,
                    method = "ctree",
-                   tuneGrid = data.frame(mincriterion = 1-exp(seq(-2, -1, length = 20))),
+                   tuneGrid = data.frame(
+                     mincriterion = 1 - exp(seq(-2, -1, length = 20))
+                   ), 
                    metric = "ROC",
                    trControl = ctrl)
+
 cit_plot = ggplot(ctree.fit, highlight = TRUE)
 plot(ctree.fit$finalModel)
+
+varImp(ctree.fit)
 ```
 
 Ensemble methods
@@ -151,13 +169,15 @@ rf.grid <- expand.grid(mtry = 1:9,
                        splitrule = "gini",
                        min.node.size = 1:9)
 set.seed(2020)
-rf.fit <- train(class~., data,
+rf.fit <- train(class~., as.data.frame(data),
                 subset = rowTrain,
                 method = "ranger",
                 tuneGrid = rf.grid,
                 metric = "ROC",
                 trControl = ctrl)
 rf_plot = ggplot(rf.fit, highlight = TRUE)
+
+# varImp(rf.fit)
 ```
 
 *Boosting*
@@ -178,6 +198,8 @@ gbmB.fit <- train(class~., data,
                  metric = "ROC",
                  verbose = FALSE)
 gbmB_plot = ggplot(gbmB.fit, highlight = TRUE)
+
+# varImp(gbmB.fit)
 ```
 
 #### AdaBoost
@@ -197,19 +219,23 @@ gbmA.fit <- train(class~., data,
                  metric = "ROC",
                  verbose = FALSE)
 gbmA_plot = ggplot(gbmA.fit, highlight = TRUE)
+
+# varImp(gbmA.fit)
 ```
 
 Support vector machines
 *Linear boundary*
 ```{r}
 set.seed(2020)
-svml.fit <- train(class~., data,
+svml.fit <- train(class~., as.data.frame(data),
                   subset = rowTrain, 
                   method = "svmLinear2",
                   preProcess = c("center", "scale"),
                   tuneGrid = data.frame(cost = exp(seq(-6,-2,len=20))),
                   trControl = ctrl)
 svml_plot = ggplot(svml.fit, highlight = TRUE)
+
+varImp(svml.fit)
 ```
 
 *Radial kernal*
@@ -217,13 +243,15 @@ svml_plot = ggplot(svml.fit, highlight = TRUE)
 svmr.grid <- expand.grid(C = exp(seq(-1,4,len=10)),
                          sigma = exp(seq(-7,-3,len=20)))
 set.seed(2020)             
-svmr.fit <- train(class~., data, 
+svmr.fit <- train(class~., as.data.frame(data), 
                   subset = rowTrain,
                   method = "svmRadial",
                   preProcess = c("center", "scale"),
                   tuneGrid = svmr.grid,
                   trControl = ctrl)
 svmr_plot = ggplot(svmr.fit, highlight = TRUE)
+
+varImp(svmr.fit)
 ```
 
 Model Selection
