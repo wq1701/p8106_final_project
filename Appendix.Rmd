@@ -41,13 +41,11 @@ ctrl <- trainControl(method = "repeatedcv",
                      summaryFunction = twoClassSummary,
                      classProbs = TRUE)
 set.seed(2020)
-<<<<<<< HEAD
 glm.fit <- train(class~., data, 
                  subset = rowTrain,
-=======
+
 glm.fit = train(class~., data, 
                 subset = rowTrain,
->>>>>>> ff368bb691546a6bf9527be135c337769adef351
                  method = "glm",
                  metric = "ROC",
                  trControl = ctrl)
@@ -55,13 +53,9 @@ glm.fit = train(class~., data,
 
 *Regularized logistic regression*
 ```{r}
-<<<<<<< HEAD
-glmnGrid <- expand.grid(alpha = seq(0, 1, length = 6),
-                        lambda = exp(seq(-8, -2, length = 20)))
-=======
 glmnGrid <- expand.grid(.alpha = seq(0, 1, length = 6),
                         .lambda = exp(seq(-10, -1, length = 30)))
->>>>>>> ff368bb691546a6bf9527be135c337769adef351
+
 set.seed(2020)
 glmn.fit <- train(class~., data, 
                     subset = rowTrain,
