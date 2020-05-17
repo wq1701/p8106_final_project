@@ -23,12 +23,86 @@ rowTrain <- createDataPartition(y = data$diagnosis,
                                 list = FALSE)
 ```
 
-Tree-based methods
-*Cart*
+Linear methods
+*Logistic regression*
 ```{r}
 ctrl <- trainControl(method = "repeatedcv",
                      summaryFunction = twoClassSummary,
                      classProbs = TRUE)
+set.seed(2020)
+glm.fit <- train(diagnosis~., data, 
+                 subset = rowTrain,
+                 method = "glm",
+                 metric = "ROC",
+                 trControl = ctrl)
+```
+
+*Regularized logistic regression*
+```{r}
+glmnGrid <- expand.grid(.alpha = seq(0, 1, length = 6),
+                        .lambda = exp(seq(-8, -2, length = 20)))
+set.seed(2020)
+glmn.fit <- train(diagnosis~., data, 
+                    subset = rowTrain,
+                    method = "glmnet",
+                    tuneGrid = glmnGrid,
+                    metric = "ROC",
+                    trControl = ctrl)
+plot(glmn.fit, xTrans = function(x) log(x))   
+glmn.fit$bestTune
+```
+
+Discriminant analysis
+*LDA*
+```{r}
+set.seed(2020)
+lda.fit <- train(diagnosis~., data, 
+                   subset = rowTrain,
+                   method = "lda",
+                   metric = "ROC",
+                   trControl = ctrl)
+```
+
+*QDA*
+```{r}
+set.seed(2020)
+qda.fit <- train(diagnosis~., data, 
+                   subset = rowTrain,
+                   method = "qda",
+                   metric = "ROC",
+                   trControl = ctrl)
+```
+
+*Naive Bayes (NB)*
+```{r}
+set.seed(2020)
+nbGrid <- expand.grid(usekernel = c(FALSE,TRUE),
+                      fL = 1, 
+                      adjust = seq(.2, 3, by = .2))
+nb.fit <- train(diagnosis~., data, 
+                  subset = rowTrain,
+                  method = "nb",
+                  tuneGrid = nbGrid,
+                  metric = "ROC",
+                  trControl = ctrl)
+plot(nb.fit, xTrans = function(x) log(x))   
+```
+
+KNN
+```{r, warning=FALSE}
+set.seed(2020)
+knn.fit <- train(diagnosis~., data, 
+                   subset = rowTrain,
+                   method = "knn",
+                   preProcess = c("center","scale"),
+                   tuneGrid = data.frame(k = seq(1,200,by=5)),
+                   trControl = ctrl)
+ggplot(knn.fit)
+```
+
+Tree-based methods
+#### Cart
+```{r}
 set.seed(2020)
 rpart.fit <- train(diagnosis~., data, 
                    subset = rowTrain,
@@ -40,7 +114,7 @@ ggplot(rpart.fit, highlight = TRUE)
 rpart.plot(rpart.fit$finalModel)
 ```
 
-*CIT*
+#### CIT
 ```{r}
 set.seed(2020)
 ctree.fit <- train(diagnosis~., data, 
@@ -137,20 +211,19 @@ ggplot(svmr.fit, highlight = TRUE)
 
 Model Selection
 ```{r}
-rpart.pred <- predict(rpart.fit, newdata = data[-rowTrain,], type = "prob")[,1]
-ctree.pred <- predict(ctree.fit, newdata = data[-rowTrain,], type = "prob")[,1]
-rf.pred <- predict(rf.fit, newdata = data[-rowTrain,], type = "prob")[,1]
-gbmB.pred <- predict(gbmB.fit, newdata = dat[-rowTrain,], type = "prob")[,1]
-gbmA.pred <- predict(gbmA.fit, newdata = dat[-rowTrain,], type = "prob")[,1]
-svml.pred <- predict(svml.fit, newdata = dat[-rowTrain,])
-svmr.pred <- predict(svmr.fit, newdata = dat[-rowTrain,])
-resamp <- resamples(list(ctree = ctree.fit, 
+resamp <- resamples(list(GLM = glm.fit, 
+                         GLMNET = glmn.fit,
+                         LDA = lda.fit, 
+                         QDA = qda.fit,
+                         NB = nb.fit, 
+                         KNN = knn.fit,
+                         ctree = ctree.fit, 
                          rpart = rpart.fit,
                          rf = rf.fit,
                          gbmA = gbmA.fit,
                          gbmB = gbmB.fit,
                          svmr = svmr.fit, 
                          svml = svml.fit))
-summary(resamp)   # training error rate for 2 models
+summary(resamp)   # training error rate for models
 ```
 
