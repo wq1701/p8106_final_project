@@ -10,7 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(caret)
 library(rpart.plot)
-library(readxl)
 ```
 
 ```{r}
@@ -42,8 +41,13 @@ ctrl <- trainControl(method = "repeatedcv",
                      summaryFunction = twoClassSummary,
                      classProbs = TRUE)
 set.seed(2020)
+<<<<<<< HEAD
 glm.fit <- train(class~., data, 
                  subset = rowTrain,
+=======
+glm.fit = train(class~., data, 
+                subset = rowTrain,
+>>>>>>> ff368bb691546a6bf9527be135c337769adef351
                  method = "glm",
                  metric = "ROC",
                  trControl = ctrl)
@@ -51,8 +55,13 @@ glm.fit <- train(class~., data,
 
 *Regularized logistic regression*
 ```{r}
+<<<<<<< HEAD
 glmnGrid <- expand.grid(alpha = seq(0, 1, length = 6),
                         lambda = exp(seq(-8, -2, length = 20)))
+=======
+glmnGrid <- expand.grid(.alpha = seq(0, 1, length = 6),
+                        .lambda = exp(seq(-10, -1, length = 30)))
+>>>>>>> ff368bb691546a6bf9527be135c337769adef351
 set.seed(2020)
 glmn.fit <- train(class~., data, 
                     subset = rowTrain,
@@ -91,7 +100,7 @@ qda.fit <- train(class~., data,
 set.seed(2020)
 nbGrid <- expand.grid(usekernel = c(FALSE,TRUE),
                       fL = 1, 
-                      adjust = seq(.2, 3, by = .2))
+                      adjust = seq(0.8, 10, by = .4))
 nb.fit <- train(class~., data, 
                   subset = rowTrain,
                   method = "nb",
@@ -146,7 +155,7 @@ Ensemble methods
 ```{r}
 rf.grid <- expand.grid(mtry = 1:9,
                        splitrule = "gini",
-                       min.node.size = 1:10)
+                       min.node.size = 1:9)
 set.seed(2020)
 rf.fit <- train(class~., data,
                 subset = rowTrain,
@@ -161,7 +170,7 @@ rf_plot = ggplot(rf.fit, highlight = TRUE)
 #### Binomial loss
 ```{r}
 gbmB.grid <- expand.grid(n.trees = c(2000,3000,4000),
-                        interaction.depth = 1:10,
+                        interaction.depth = 1:9,
                         shrinkage = c(0.001,0.003,0.005),
                         n.minobsinnode = 1)
 set.seed(2020)
@@ -180,7 +189,7 @@ gbmB_plot = ggplot(gbmB.fit, highlight = TRUE)
 #### AdaBoost
 ```{r}
 gbmA.grid <- expand.grid(n.trees = c(2000,3000,4000),
-                        interaction.depth = 1:10,
+                        interaction.depth = 1:9,
                         shrinkage = c(0.001,0.003,0.005),
                         n.minobsinnode = 1)
 set.seed(2020)
@@ -204,7 +213,7 @@ svml.fit <- train(class~., data,
                   subset = rowTrain, 
                   method = "svmLinear2",
                   preProcess = c("center", "scale"),
-                  tuneGrid = data.frame(cost = exp(seq(-5,0,len=20))),
+                  tuneGrid = data.frame(cost = exp(seq(-6,-2,len=20))),
                   trControl = ctrl)
 svml_plot = ggplot(svml.fit, highlight = TRUE)
 ```
@@ -212,7 +221,7 @@ svml_plot = ggplot(svml.fit, highlight = TRUE)
 *Radial kernal*
 ```{r}
 svmr.grid <- expand.grid(C = exp(seq(-1,4,len=10)),
-                         sigma = exp(seq(-6,-2,len=10)))
+                         sigma = exp(seq(-7,-3,len=20)))
 set.seed(2020)             
 svmr.fit <- train(class~., data, 
                   subset = rowTrain,
