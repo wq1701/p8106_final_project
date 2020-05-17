@@ -1,0 +1,88 @@
+---
+title: "P8106 Final Report"
+output: pdf_document
+author: "Si Li, Weiwei Qi and Qimin Zhang"
+editor_options: 
+  chunk_output_type: console
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(caret)
+library(rpart.plot)
+library(readxl)
+```
+
+# Introduction
+
+Breast cancer is considered as one of the most common types of cancer among women all over the world, and machine learning methods for breast cancer classification has been a hot topic for many years. In this report, we want to try multiple classification methods on [Wisconsin Breast Cancer Database](https://www.kaggle.com/roustekbio/breast-cancer-csv?select=breastCancer.csv) from the University of Wisconsin Hospitals, Madison from Dr. William H. Wolberg, and compare their performance to see which one is the best for breast cancer classification.
+
+```{r, include=FALSE}
+data = read_csv("data.csv") %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(-id) %>%
+  mutate(
+    class = case_when(
+      class == 2 ~ 'B',
+      class == 4 ~ 'M'
+    ) %>% as.factor(),
+    bare_nucleoli = na_if(bare_nucleoli, '?'),
+    bare_nucleoli = as.integer(bare_nucleoli)
+  ) %>%
+  mutate_if(is.numeric, ~replace(., is.na(.), median(., na.rm = T)))
+```
+
+The dataset contains `r dim(data)[1]` tumor subjects and `r dim(data)[2]-1` predictive variables, and the variable 'class' is the type of this tumor, where 'M' is malignant and 'B' is benign. Explanation for some variables:
+'clump_thickness': Thickness of clump, from 1 to 10;
+'size_uniformity': Uniformity of cell size, from 1 to 10;
+'bland_chromatin': Bland chromatin, from 1 to 10.
+
+The variable 'bare_nucleoli' was recorded in the form of character and NA was denoted by '?'. When cleaning the data, we replace '?' by NA and fill it with median.
+
+# Exploratary Analysis
+
+
+```{r echo=FALSE, fig.height=4}
+data %>%
+  keep(is.numeric) %>%  
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram(bins = 10)
+```
+
+```{r}
+data %>% 
+  filter(class == "B") %>% 
+  keep(is.numeric) %>%  
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram(bins = 10) +
+  ggtitle("Benign Tumor")
+
+data %>% 
+  filter(class == "M") %>% 
+  keep(is.numeric) %>%  
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram(bins = 10) +
+  ggtitle("Malignant Tumor")
+
+data %>% 
+  ggplot(aes(x = class, fill = class)) + 
+  geom_bar()
+```
+
+```{r}
+
+```
+
+
+# Models
+
+
+# Conclusions
