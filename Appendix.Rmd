@@ -7,18 +7,30 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 library(caret)
 library(rpart.plot)
+library(readxl)
 ```
 
 ```{r}
-data=read.csv("data.csv")[,-33]
-table(is.na(data)) # no missing value
+data = read_csv("data.csv") %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(-id) %>%
+  mutate(
+    class = case_when(
+      class == 2 ~ 'B',
+      class == 4 ~ 'M'
+    ) %>% as.factor(),
+    bare_nucleoli = na_if(bare_nucleoli, '?'),
+    bare_nucleoli = as.integer(bare_nucleoli)
+  ) %>%
+  mutate_if(is.numeric, ~replace(., is.na(.), median(., na.rm = T)))
 ```
 
 ```{r}
 set.seed(2020)
-rowTrain <- createDataPartition(y = data$diagnosis,
+rowTrain = createDataPartition(y = data$class,
                                 p = 2/3,
                                 list = FALSE)
 ```
@@ -26,11 +38,11 @@ rowTrain <- createDataPartition(y = data$diagnosis,
 Linear methods
 *Logistic regression*
 ```{r}
-ctrl <- trainControl(method = "repeatedcv",
+ctrl = trainControl(method = "repeatedcv",
                      summaryFunction = twoClassSummary,
                      classProbs = TRUE)
 set.seed(2020)
-glm.fit <- train(diagnosis~., data, 
+glm.fit = train(class~., data, 
                  subset = rowTrain,
                  method = "glm",
                  metric = "ROC",
@@ -42,7 +54,7 @@ glm.fit <- train(diagnosis~., data,
 glmnGrid <- expand.grid(.alpha = seq(0, 1, length = 6),
                         .lambda = exp(seq(-8, -2, length = 20)))
 set.seed(2020)
-glmn.fit <- train(diagnosis~., data, 
+glmn.fit <- train(class~., data, 
                     subset = rowTrain,
                     method = "glmnet",
                     tuneGrid = glmnGrid,
@@ -56,7 +68,7 @@ Discriminant analysis
 *LDA*
 ```{r}
 set.seed(2020)
-lda.fit <- train(diagnosis~., data, 
+lda.fit <- train(class~., data, 
                    subset = rowTrain,
                    method = "lda",
                    metric = "ROC",
@@ -66,7 +78,7 @@ lda.fit <- train(diagnosis~., data,
 *QDA*
 ```{r}
 set.seed(2020)
-qda.fit <- train(diagnosis~., data, 
+qda.fit <- train(class~., data, 
                    subset = rowTrain,
                    method = "qda",
                    metric = "ROC",
@@ -79,7 +91,7 @@ set.seed(2020)
 nbGrid <- expand.grid(usekernel = c(FALSE,TRUE),
                       fL = 1, 
                       adjust = seq(.2, 3, by = .2))
-nb.fit <- train(diagnosis~., data, 
+nb.fit <- train(class~., data, 
                   subset = rowTrain,
                   method = "nb",
                   tuneGrid = nbGrid,
@@ -91,7 +103,7 @@ plot(nb.fit, xTrans = function(x) log(x))
 KNN
 ```{r, warning=FALSE}
 set.seed(2020)
-knn.fit <- train(diagnosis~., data, 
+knn.fit <- train(class~., data, 
                    subset = rowTrain,
                    method = "knn",
                    preProcess = c("center","scale"),
@@ -104,7 +116,7 @@ Tree-based methods
 #### Cart
 ```{r}
 set.seed(2020)
-rpart.fit <- train(diagnosis~., data, 
+rpart.fit <- train(class~., data, 
                    subset = rowTrain,
                    method = "rpart",
                    tuneGrid = data.frame(cp = exp(seq(-6,-3, len = 20))),
@@ -117,7 +129,7 @@ rpart.plot(rpart.fit$finalModel)
 #### CIT
 ```{r}
 set.seed(2020)
-ctree.fit <- train(diagnosis~., data, 
+ctree.fit <- train(class~., data, 
                    subset = rowTrain,
                    method = "ctree",
                    tuneGrid = data.frame(mincriterion = 1-exp(seq(-2, -1, length = 20))),
@@ -134,7 +146,7 @@ rf.grid <- expand.grid(mtry = 1:10,
                        splitrule = "gini",
                        min.node.size = 1:10)
 set.seed(2020)
-rf.fit <- train(diagnosis~., data,
+rf.fit <- train(class~., data,
                 subset = rowTrain,
                 method = "ranger",
                 tuneGrid = rf.grid,
@@ -152,7 +164,7 @@ gbmB.grid <- expand.grid(n.trees = c(2000,3000,4000),
                         n.minobsinnode = 1)
 set.seed(2020)
 # Binomial loss function
-gbmB.fit <- train(diagnosis~., data,
+gbmB.fit <- train(class~., data,
                  subset = rowTrain, 
                  tuneGrid = gbmB.grid,
                  trControl = ctrl,
@@ -171,7 +183,7 @@ gbmA.grid <- expand.grid(n.trees = c(2000,3000,4000),
                         n.minobsinnode = 1)
 set.seed(2020)
 # Adaboost loss function
-gbmA.fit <- train(diagnosis~., data,
+gbmA.fit <- train(class~., data,
                  subset = rowTrain, 
                  tuneGrid = gbmA.grid,
                  trControl = ctrl,
@@ -186,7 +198,7 @@ Support vector machines
 *Linear boundary*
 ```{r}
 set.seed(2020)
-svml.fit <- train(diagnosis~., data,
+svml.fit <- train(class~., data,
                   subset = rowTrain, 
                   method = "svmLinear2",
                   preProcess = c("center", "scale"),
@@ -200,7 +212,7 @@ ggplot(svml.fit, highlight = TRUE)
 svmr.grid <- expand.grid(C = exp(seq(-1,4,len=10)),
                          sigma = exp(seq(-6,-2,len=10)))
 set.seed(2020)             
-svmr.fit <- train(diagnosis~., data, 
+svmr.fit <- train(class~., data, 
                   subset = rowTrain,
                   method = "svmRadial",
                   preProcess = c("center", "scale"),
