@@ -10,11 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(caret)
 library(rpart.plot)
-<<<<<<< HEAD
-library(tidyverse)
-=======
-library(readxl)
->>>>>>> a5768e6ac887b866af3817b169b163e975b0f9d8
 ```
 
 ```{r}
@@ -34,11 +29,7 @@ data = read_csv("data.csv") %>%
 
 ```{r}
 set.seed(2020)
-<<<<<<< HEAD
-rowTrain <- createDataPartition(y = data$class,
-=======
 rowTrain = createDataPartition(y = data$class,
->>>>>>> a5768e6ac887b866af3817b169b163e975b0f9d8
                                 p = 2/3,
                                 list = FALSE)
 ```
@@ -50,12 +41,8 @@ ctrl = trainControl(method = "repeatedcv",
                      summaryFunction = twoClassSummary,
                      classProbs = TRUE)
 set.seed(2020)
-<<<<<<< HEAD
-glm.fit <- train(class~., data, 
-=======
 glm.fit = train(class~., data, 
->>>>>>> a5768e6ac887b866af3817b169b163e975b0f9d8
-                 subset = rowTrain,
+                subset = rowTrain,
                  method = "glm",
                  metric = "ROC",
                  trControl = ctrl)
@@ -102,11 +89,7 @@ qda.fit <- train(class~., data,
 set.seed(2020)
 nbGrid <- expand.grid(usekernel = c(FALSE,TRUE),
                       fL = 1, 
-<<<<<<< HEAD
                       adjust = seq(0.8, 10, by = .4))
-=======
-                      adjust = seq(.2, 3, by = .2))
->>>>>>> a5768e6ac887b866af3817b169b163e975b0f9d8
 nb.fit <- train(class~., data, 
                   subset = rowTrain,
                   method = "nb",
