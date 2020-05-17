@@ -30,7 +30,7 @@ data = read_csv("data.csv") %>%
 
 ```{r}
 set.seed(2020)
-rowTrain = createDataPartition(y = data$class,
+rowTrain <- createDataPartition(y = data$class,
                                 p = 2/3,
                                 list = FALSE)
 ```
@@ -38,11 +38,11 @@ rowTrain = createDataPartition(y = data$class,
 Linear methods
 *Logistic regression*
 ```{r}
-ctrl = trainControl(method = "repeatedcv",
+ctrl <- trainControl(method = "repeatedcv",
                      summaryFunction = twoClassSummary,
                      classProbs = TRUE)
 set.seed(2020)
-glm.fit = train(class~., data, 
+glm.fit <- train(class~., data, 
                  subset = rowTrain,
                  method = "glm",
                  metric = "ROC",
@@ -51,8 +51,8 @@ glm.fit = train(class~., data,
 
 *Regularized logistic regression*
 ```{r}
-glmnGrid <- expand.grid(.alpha = seq(0, 1, length = 6),
-                        .lambda = exp(seq(-8, -2, length = 20)))
+glmnGrid <- expand.grid(alpha = seq(0, 1, length = 6),
+                        lambda = exp(seq(-8, -2, length = 20)))
 set.seed(2020)
 glmn.fit <- train(class~., data, 
                     subset = rowTrain,
@@ -60,7 +60,8 @@ glmn.fit <- train(class~., data,
                     tuneGrid = glmnGrid,
                     metric = "ROC",
                     trControl = ctrl)
-plot(glmn.fit, xTrans = function(x) log(x))   
+glmn_plot = plot(glmn.fit, xTrans = function(x) log(x), 
+                 highlight = T)   
 glmn.fit$bestTune
 ```
 
@@ -97,7 +98,8 @@ nb.fit <- train(class~., data,
                   tuneGrid = nbGrid,
                   metric = "ROC",
                   trControl = ctrl)
-plot(nb.fit, xTrans = function(x) log(x))   
+nb_plot = plot(nb.fit, xTrans = function(x) log(x), 
+                 highlight = T)   
 ```
 
 KNN
@@ -109,7 +111,7 @@ knn.fit <- train(class~., data,
                    preProcess = c("center","scale"),
                    tuneGrid = data.frame(k = seq(1,200,by=5)),
                    trControl = ctrl)
-ggplot(knn.fit)
+knn_plot = ggplot(knn.fit, highlight = T)
 ```
 
 Tree-based methods
@@ -122,7 +124,7 @@ rpart.fit <- train(class~., data,
                    tuneGrid = data.frame(cp = exp(seq(-6,-3, len = 20))),
                    trControl = ctrl,
                    metric = "ROC")
-ggplot(rpart.fit, highlight = TRUE)
+cart_plot = ggplot(rpart.fit, highlight = TRUE)
 rpart.plot(rpart.fit$finalModel)
 ```
 
@@ -135,14 +137,14 @@ ctree.fit <- train(class~., data,
                    tuneGrid = data.frame(mincriterion = 1-exp(seq(-2, -1, length = 20))),
                    metric = "ROC",
                    trControl = ctrl)
-ggplot(ctree.fit, highlight = TRUE)
+cit_plot = ggplot(ctree.fit, highlight = TRUE)
 plot(ctree.fit$finalModel)
 ```
 
 Ensemble methods
 *Random forests*
 ```{r}
-rf.grid <- expand.grid(mtry = 1:10,
+rf.grid <- expand.grid(mtry = 1:9,
                        splitrule = "gini",
                        min.node.size = 1:10)
 set.seed(2020)
@@ -152,7 +154,7 @@ rf.fit <- train(class~., data,
                 tuneGrid = rf.grid,
                 metric = "ROC",
                 trControl = ctrl)
-ggplot(rf.fit, highlight = TRUE)
+rf_plot = ggplot(rf.fit, highlight = TRUE)
 ```
 
 *Boosting*
@@ -172,7 +174,7 @@ gbmB.fit <- train(class~., data,
                  distribution = "bernoulli",
                  metric = "ROC",
                  verbose = FALSE)
-ggplot(gbmB.fit, highlight = TRUE)
+gbmB_plot = ggplot(gbmB.fit, highlight = TRUE)
 ```
 
 #### AdaBoost
@@ -191,7 +193,7 @@ gbmA.fit <- train(class~., data,
                  distribution = "adaboost",
                  metric = "ROC",
                  verbose = FALSE)
-ggplot(gbmA.fit, highlight = TRUE)
+gbmA_plot = ggplot(gbmA.fit, highlight = TRUE)
 ```
 
 Support vector machines
@@ -204,7 +206,7 @@ svml.fit <- train(class~., data,
                   preProcess = c("center", "scale"),
                   tuneGrid = data.frame(cost = exp(seq(-5,0,len=20))),
                   trControl = ctrl)
-ggplot(svml.fit, highlight = TRUE)
+svml_plot = ggplot(svml.fit, highlight = TRUE)
 ```
 
 *Radial kernal*
@@ -218,7 +220,7 @@ svmr.fit <- train(class~., data,
                   preProcess = c("center", "scale"),
                   tuneGrid = svmr.grid,
                   trControl = ctrl)
-ggplot(svmr.fit, highlight = TRUE)
+svmr_plot = ggplot(svmr.fit, highlight = TRUE)
 ```
 
 Model Selection
@@ -237,5 +239,6 @@ resamp <- resamples(list(GLM = glm.fit,
                          svmr = svmr.fit, 
                          svml = svml.fit))
 summary(resamp)   # training error rate for models
+bwplot(resamp, metric = "ROC")
 ```
 
