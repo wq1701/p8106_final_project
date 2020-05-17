@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(caret)
 library(rpart.plot)
+library(gridExtra)
+library(readxl)
 ```
 
 ```{r}
@@ -253,6 +255,15 @@ svmr_plot = ggplot(svmr.fit, highlight = TRUE)
 
 varImp(svmr.fit)
 ```
+
+Visualization
+
+```{r}
+grid.arrange(glmn_plot, nb_plot, knn_plot,
+             cart_plot, cit_plot, rf_plot,
+             gbmB_plot, gbmA_plot, svml_plot, svmr_plot)
+```
+
 
 Model Selection
 ```{r}
