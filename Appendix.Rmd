@@ -31,7 +31,7 @@ data = read_csv("data.csv") %>%
 
 ```{r}
 set.seed(2020)
-rowTrain <- createdataPartition(y = data$class,
+rowTrain <- createDataPartition(y = data$class,
                                 p = 2/3,
                                 list = FALSE)
 ```
@@ -50,7 +50,7 @@ glm.fit = train(class~., data,
                  metric = "ROC",
                  trControl = ctrl)
 
-varImp(glm.fit)
+var_glm = varImp(glm.fit)$importance
 ```
 
 *Regularized logistic regression*
@@ -69,7 +69,7 @@ glmn_plot = plot(glmn.fit, xTrans = function(x) log(x),
                  highlight = T)   
 glmn.fit$bestTune
 
-varImp(glmn.fit)
+var_glmn = varImp(glmn.fit)$importance
 ```
 
 Discriminant analysis
@@ -83,7 +83,7 @@ lda.fit <- train(class~., as.data.frame(data),
                    trControl = ctrl)
 
 # need to convert data in lda to data frame, otherwise varImp doesnt work
-varImp(lda.fit) 
+var_lda = varImp(lda.fit)$importance
 ```
 
 *QDA*
@@ -95,7 +95,7 @@ qda.fit <- train(class~., as.data.frame(data),
                    metric = "ROC",
                    trControl = ctrl)
 
-varImp(qda.fit)
+var_qda = varImp(qda.fit)$importance
 ```
 
 *Naive Bayes (NB)*
@@ -113,7 +113,7 @@ nb.fit <- train(class~., as.data.frame(data),
 nb_plot = plot(nb.fit, xTrans = function(x) log(x), 
                  highlight = T) 
 
-varImp(nb.fit)
+var_nb = varImp(nb.fit)$importance
 ```
 
 KNN
@@ -127,7 +127,7 @@ knn.fit <- train(class~., as.data.frame(data),
                    trControl = ctrl)
 knn_plot = ggplot(knn.fit, highlight = T)
 
-varImp(knn.fit)
+var_knn = varImp(knn.fit)$importance
 ```
 
 Tree-based methods
@@ -143,7 +143,7 @@ rpart.fit <- train(class~., data,
 cart_plot = ggplot(rpart.fit, highlight = TRUE)
 rpart.plot(rpart.fit$finalModel)
 
-varImp(rpart.fit)
+var_rpart = varImp(rpart.fit)$importance
 ```
 
 #### CIT
@@ -161,7 +161,7 @@ ctree.fit <- train(class~., as.data.frame(data),
 cit_plot = ggplot(ctree.fit, highlight = TRUE)
 plot(ctree.fit$finalModel)
 
-varImp(ctree.fit)
+var_ctree = varImp(ctree.fit)$importance
 ```
 
 Ensemble methods
@@ -237,7 +237,7 @@ svml.fit <- train(class~., as.data.frame(data),
                   trControl = ctrl)
 svml_plot = ggplot(svml.fit, highlight = TRUE)
 
-varImp(svml.fit)
+var_svml = varImp(svml.fit)$importance
 ```
 
 *Radial kernal*
@@ -253,7 +253,7 @@ svmr.fit <- train(class~., as.data.frame(data),
                   trControl = ctrl)
 svmr_plot = ggplot(svmr.fit, highlight = TRUE)
 
-varImp(svmr.fit)
+var_svmr = varImp(svmr.fit)$importance
 ```
 
 Visualization
@@ -337,5 +337,63 @@ auc <- c(roc.glm$auc[1], roc.glmn$auc[1], roc.lda$auc[1],
 modelNames <- c("glm","glmn","lda","qda","nb","knn","rpart","ctree","rf","gbmA","gbmB","svml","svmr")
 legend("bottomright", legend = paste0(modelNames, ": ", round(auc,3)),
        col = 1:13, lwd = 2)
+```
+
+variable importance table
+```{r}
+clean_var_table = function(table) {
+  # vc: variable columns
+  if (ncol(table) == 1) {
+    table = table %>% 
+      rownames_to_column() %>% 
+      janitor::clean_names() %>% 
+      rename('Importance' = `overall`, 
+             'Variable' = `rowname`)
+    
+    return(table)
+    
+  } else if (ncol(table) == 2) {
+    table = table %>% 
+      rownames_to_column() %>% 
+      janitor::clean_names() %>% 
+      select(rowname, `b`) %>% 
+      rename('Importance' = `b`, 
+             'Variable' = `rowname`)
+    
+    return(table)
+      
+  }
+}
+
+tt_ctree = clean_var_table(table = var_ctree) %>% 
+  rename(ctree = `Importance`)
+tt_glm = clean_var_table(table = var_glm) %>% 
+  rename(glm = `Importance`)
+tt_glmn = clean_var_table(table = var_glmn) %>% 
+  rename(glmn = `Importance`)
+tt_knn = clean_var_table(table = var_knn) %>% 
+  rename(knn = `Importance`)
+tt_lda = clean_var_table(table = var_lda) %>% 
+  rename(lda = `Importance`)
+tt_nb = clean_var_table(table = var_nb) %>% 
+  rename(nb = `Importance`)
+tt_qda = clean_var_table(table = var_qda) %>% 
+  rename(qda = `Importance`)
+tt_rpart = clean_var_table(table = var_rpart) %>% 
+  rename(rpart = `Importance`)
+tt_svml = clean_var_table(table = var_svml) %>% 
+  rename(svml = `Importance`)
+tt_svmr = clean_var_table(table = var_svmr) %>% 
+  rename(svmr = `Importance`)
+
+tt_final = left_join(tt_glm, tt_glmn, by = "Variable") %>% 
+  left_join(., tt_lda, by = "Variable") %>% 
+  left_join(., tt_qda, by = "Variable") %>% 
+  left_join(., tt_nb, by = "Variable") %>% 
+  left_join(., tt_knn, by = "Variable") %>% 
+  left_join(., tt_rpart, by = "Variable") %>% 
+  left_join(., tt_ctree, by = "Variable")%>% 
+  left_join(., tt_svml, by = "Variable")%>% 
+  left_join(., tt_svmr, by = "Variable")
 ```
 
