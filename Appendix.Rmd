@@ -31,7 +31,7 @@ data = read_csv("data.csv") %>%
 
 ```{r}
 set.seed(2020)
-rowTrain <- createDataPartition(y = data$class,
+rowTrain <- createdataPartition(y = data$class,
                                 p = 2/3,
                                 list = FALSE)
 ```
@@ -282,5 +282,60 @@ resamp <- resamples(list(GLM = glm.fit,
                          svml = svml.fit))
 summary(resamp)   # training error rate for models
 bwplot(resamp, metric = "ROC")
+```
+
+Test data performance
+```{r}
+glm.pred <- predict(glm.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+glmn.pred <- predict(glmn.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+nb.pred <- predict(nb.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+lda.pred <- predict(lda.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+qda.pred <- predict(qda.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+knn.pred <- predict(knn.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+rpart.pred <- predict(rpart.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+ctree.pred <- predict(ctree.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+rf.pred <- predict(rf.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+gbmB.pred <- predict(gbmB.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+gbmA.pred <- predict(gbmA.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+pred.svml <- predict(svml.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+pred.svmr <- predict(svmr.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+
+roc.glm <- roc(data$class[-rowTrain], glm.pred)
+roc.glmn <- roc(data$class[-rowTrain], glmn.pred)
+roc.nb <- roc(data$class[-rowTrain], nb.pred)
+roc.lda <- roc(data$class[-rowTrain], lda.pred)
+roc.qda <- roc(data$class[-rowTrain], qda.pred)
+roc.knn <- roc(data$class[-rowTrain], knn.pred)
+roc.rpart <- roc(data$class[-rowTrain], rpart.pred)
+roc.ctree <- roc(data$class[-rowTrain], ctree.pred)
+roc.rf <- roc(data$class[-rowTrain], rf.pred)
+roc.gbmA <- roc(data$class[-rowTrain], gbmA.pred)
+roc.gbmB <- roc(data$class[-rowTrain], gbmB.pred)
+roc.svml <- roc(data$class[-rowTrain], svml.pred)
+roc.svmr <- roc(data$class[-rowTrain], svmr.pred)
+
+plot(roc.glm, legacy.axes = TRUE)
+plot(roc.glmn, col = 2, add = TRUE)
+plot(roc.lda, col = 3, add = TRUE)
+plot(roc.qda, col = 4, add = TRUE)
+plot(roc.nb, col = 5, add = TRUE)
+plot(roc.knn, col = 6, add = TRUE)
+plot(roc.rpart, col = 7, add = TRUE)
+plot(roc.ctree, col = 8, add = TRUE)
+plot(roc.rf, col = 9, add = TRUE)
+plot(roc.gbmA, col = 10, add = TRUE)
+plot(roc.gbmB, col = 11, add = TRUE)
+plot(roc.svml, col = 12, add = TRUE)
+plot(roc.svmr, col = 13, add = TRUE)
+
+auc <- c(roc.glm$auc[1], roc.glmn$auc[1], roc.lda$auc[1],
+         roc.qda$auc[1], roc.nb$auc[1], roc.knn$auc[1],
+         roc.rpart$auc[1], roc.ctree$auc[1], roc.rf$auc[1], 
+         roc.gbmA$auc[1], roc.gbmB$auc[1],
+         roc.svml$auc[1], roc.svmr$auc[1])
+
+modelNames <- c("glm","glmn","lda","qda","nb","knn","rpart","ctree","rf","gbmA","gbmB","svml","svmr")
+legend("bottomright", legend = paste0(modelNames, ": ", round(auc,3)),
+       col = 1:13, lwd = 2)
 ```
 
