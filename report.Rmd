@@ -77,9 +77,6 @@ data %>%
   geom_bar()
 ```
 
-```{r}
-
-```
 
 
 # Models
@@ -87,6 +84,8 @@ data %>%
 For classification task, mulyiple models are fitted to test against the data for evaluating performance. For linear methods, Logistic and Regularized Logistic regression are fitted; For discriminant analysis, LDA, QDA, and Naive Bayes methods are used; Tree-based methods are implemented as well, including Random Forest, Boosting. 
 
 The data is split into two part, where 2/3 of the original data is used for training the models and the left out data will be used for testing and evaluating model performance. 
+
+
 
 # Conclusions
 
