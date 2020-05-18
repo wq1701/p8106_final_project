@@ -65,9 +65,9 @@ glmn.fit <- train(class~., data,
                     tuneGrid = glmnGrid,
                     metric = "ROC",
                     trControl = ctrl)
-glmn_plotylab = plot(glmn.fit, xTrans = function(x) log(x), 
+glmn_plot = plot(glmn.fit, xTrans = function(x) log(x), 
                  highlight = T,
-                 main = 'Regularized logistic regression Cross-Valiation',
+                 main = 'Regularized logistic regression',
                  xlab = 'log(lambda)', ylab = 'ROC')   
 glmn.fit$bestTune
 
@@ -114,7 +114,7 @@ nb.fit <- train(class~., as.data.frame(data),
                   trControl = ctrl)
 nb_plot = plot(nb.fit, 
                  highlight = T,
-                 main = 'Naive Bayes Cross-Valiation',
+                 main = 'Naive Bayes',
                  xlab = 'adjust', ylab = 'ROC') 
 
 var_nb = varImp(nb.fit)$importance
@@ -130,7 +130,7 @@ knn.fit <- train(class~., as.data.frame(data),
                    tuneGrid = data.frame(k = seq(1,200,by=5)),
                    trControl = ctrl)
 knn_plot = ggplot(knn.fit, highlight = T) + 
-  labs(title="KNN Cross-Valiation", y = "ROC")
+  labs(title="KNN", y = "ROC")
 
 var_knn = varImp(knn.fit)$importance
 ```
@@ -146,7 +146,7 @@ rpart.fit <- train(class~., data,
                    trControl = ctrl,
                    metric = "ROC")
 cart_plot = ggplot(rpart.fit, highlight = TRUE) + 
-  labs(title="CART Cross-Valiation", x = "cp", y = "ROC")
+  labs(title="CART", x = "cp", y = "ROC")
 
 rpart.plot(rpart.fit$finalModel)
 
@@ -166,7 +166,7 @@ ctree.fit <- train(class~., as.data.frame(data),
                    trControl = ctrl)
 
 cit_plot = ggplot(ctree.fit, highlight = TRUE) + 
-  labs(title="CIT Cross-Valiation", x = "min criterion", y = "ROC")
+  labs(title="CIT", x = "min criterion", y = "ROC")
 plot(ctree.fit$finalModel)
 
 var_ctree = varImp(ctree.fit)$importance
@@ -186,7 +186,7 @@ rf.fit <- train(class~., as.data.frame(data),
                 metric = "ROC",
                 trControl = ctrl)
 rf_plot = ggplot(rf.fit, highlight = TRUE) + 
-  labs(title="Random Forests Cross-Valiation", x = "mtry", y = "ROC")
+  labs(title="Random Forests", x = "mtry", y = "ROC")
 
 # varImp(rf.fit)
 ```
@@ -209,7 +209,7 @@ gbmB.fit <- train(class~., data,
                  metric = "ROC",
                  verbose = FALSE)
 gbmB_plot = ggplot(gbmB.fit, highlight = TRUE) + 
-  labs(title="Binomial Loss Boosting Cross-Valiation", 
+  labs(title="Binomial Loss Boosting", 
       y = "ROC")
 
 # varImp(gbmB.fit)
@@ -232,7 +232,7 @@ gbmA.fit <- train(class~., data,
                  metric = "ROC",
                  verbose = FALSE)
 gbmA_plot = ggplot(gbmA.fit, highlight = TRUE) + 
-  labs(title="AdaBoost Cross-Valiation", y = "ROC")
+  labs(title="AdaBoost", y = "ROC")
 
 # varImp(gbmA.fit)
 ```
@@ -248,7 +248,7 @@ svml.fit <- train(class~., as.data.frame(data),
                   tuneGrid = data.frame(cost = exp(seq(-6,-2,len=20))),
                   trControl = ctrl)
 svml_plot = ggplot(svml.fit, highlight = TRUE) + 
-  labs(title="SVM with Linear Boundary Cross-Valiation", x = "cost", y = "ROC")
+  labs(title="SVM with Linear Boundary", x = "cost", y = "ROC")
 
 var_svml = varImp(svml.fit)$importance
 ```
@@ -265,7 +265,7 @@ svmr.fit <- train(class~., as.data.frame(data),
                   tuneGrid = svmr.grid,
                   trControl = ctrl)
 svmr_plot = ggplot(svmr.fit, highlight = TRUE)+ 
-  labs(title="SVM with Radial Kernal Cross-Valiation", y = "ROC")
+  labs(title="SVM with Radial Kernal", y = "ROC")
 
 var_svmr = varImp(svmr.fit)$importance
 ```
@@ -273,10 +273,12 @@ var_svmr = varImp(svmr.fit)$importance
 Visualization
 
 ```{r}
-grid.arrange(glmn_plot, nb_plot, knn_plot,
-             cart_plot, cit_plot, rf_plot,
-             gbmB_plot, gbmA_plot, svml_plot, 
-             svmr_plot, ncol=2)
+grid.arrange(knn_plot, cart_plot, cit_plot, svml_plot, ncol=2)
+```
+
+```{r}
+grid.arrange(glmn_plot, nb_plot, rf_plot, gbmB_plot, 
+             gbmA_plot, svmr_plot, ncol=2)
 ```
 
 

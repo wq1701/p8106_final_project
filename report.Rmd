@@ -46,14 +46,24 @@ The variable 'bare_nucleoli' was recorded in the form of character and NA was de
 
 ```{r echo=FALSE, fig.height=4}
 data %>%
-  keep(is.numeric) %>%  
+  filter(class == 'M') %>% 
+  keep(is.numeric) %>%
   gather() %>% 
-  ggplot(aes(value)) +
-  facet_wrap(~ key, scales = "free") +
+  mutate(class = 'M') %>% 
+  rbind(
+  data %>%
+  filter(class == 'B') %>% 
+  keep(is.numeric) %>%
+  gather() %>% 
+  mutate(class = 'B')
+  ) %>% 
+  ggplot(aes(value, fill = class, )) +
+  facet_wrap(~ key, scales = 'free') +
   geom_histogram(bins = 10)
 ```
 
-```{r}
+
+```{r eval=FALSE, include=FALSE}
 data %>% 
   filter(class == "B") %>% 
   keep(is.numeric) %>%  
