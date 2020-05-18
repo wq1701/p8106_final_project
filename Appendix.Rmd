@@ -403,14 +403,14 @@ tt_svml = clean_var_table(table = var_svml) %>%
 tt_svmr = clean_var_table(table = var_svmr) %>% 
   rename(svmr = `Importance`)
 
-tt_final = left_join(tt_glm, tt_glmn, by = "Variable") %>% 
+varImpTable = left_join(tt_glm, tt_glmn, by = "Variable") %>% 
   left_join(., tt_lda, by = "Variable") %>% 
   left_join(., tt_qda, by = "Variable") %>% 
   left_join(., tt_nb, by = "Variable") %>% 
   left_join(., tt_knn, by = "Variable") %>% 
   left_join(., tt_rpart, by = "Variable") %>% 
-  left_join(., tt_ctree, by = "Variable")%>% 
-  left_join(., tt_svml, by = "Variable")%>% 
+  left_join(., tt_ctree, by = "Variable") %>% 
+  left_join(., tt_svml, by = "Variable") %>% 
   left_join(., tt_svmr, by = "Variable")
 ```
 
