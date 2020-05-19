@@ -17,6 +17,7 @@ library(tidyverse)
 library(caret)
 library(rpart.plot)
 library(readxl)
+library(pROC)
 ```
 
 # Introduction
@@ -32,6 +33,21 @@ The variable 'bare_nucleoli' was recorded in the form of character and NA was de
 
 
 # Exploratary Analysis
+
+```{r include=FALSE}
+data = read_csv("data.csv") %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(-id) %>%
+  mutate(
+    class = case_when(
+      class == 2 ~ 'B',
+      class == 4 ~ 'M'
+    ) %>% as.factor(),
+    bare_nucleoli = na_if(bare_nucleoli, '?'),
+    bare_nucleoli = as.integer(bare_nucleoli)
+  ) %>%
+  mutate_if(is.numeric, ~replace(., is.na(.), median(., na.rm = T)))
+```
 
 \begin{figure}[H]
 \centering
@@ -65,7 +81,39 @@ For Support Vector Machines, we fit 2 models using linear kernal and radial kern
 
 Uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 important features in predicting whether the cancer is benign or malignant.
 
-As for test data performance, all but unstable single trees are quite constant with cross-validation performance.
+As for test data performance, all but unstable single trees are quite constant with cross-validation performance. We choose Naive Bayes as our final model and yield the confusion matrix below:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(2020)
+rowTrain <- createDataPartition(y = data$class,
+                                p = 2/3,
+                                list = FALSE)
+
+ctrl <- trainControl(method = "repeatedcv",
+                     summaryFunction = twoClassSummary,
+                     classProbs = TRUE)
+
+set.seed(2020)
+nbGrid <- expand.grid(usekernel = c(FALSE,TRUE),
+                      fL = 1, 
+                      adjust = seq(0.8, 10, by = .4))
+nb.fit <- train(class~., as.data.frame(data), 
+                  subset = rowTrain,
+                  method = "nb",
+                  tuneGrid = nbGrid,
+                  metric = "ROC",
+                  trControl = ctrl)
+
+testpred = predict(nb.fit, data[-rowTrain,])
+
+confusionMatrix(data = as.factor(testpred), 
+                reference = data[-rowTrain,]$class,
+                positive = "M")
+```
+
+The overall accuracy is 0.9526, which is quite satisfying. We can see the sensitivity is rather low and specificity is high, indicating that this classification model is suitable for ruling out almost everyone who doesn't have the disease and won't generate many false-positive results. For example, this method can served as the second test for patients who are positive for the first test.
+
+And below is the visualization of cross-validation:
 
 \begin{figure}[H]
 \centering
