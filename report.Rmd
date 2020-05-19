@@ -5,6 +5,10 @@ author: "Si Li, Weiwei Qi and Qimin Zhang"
 editor_options: 
   chunk_output_type: console
 urlcolor: blue
+header-includes:
+  - \usepackage{float}
+  - \usepackage{subcaption}
+  - \usepackage{graphicx} 
 ---
 
 ```{r setup, include=FALSE}
@@ -28,10 +32,12 @@ The variable 'bare_nucleoli' was recorded in the form of character and NA was de
 
 
 # Exploratary Analysis
-```{r echo=FALSE, out.width="100%", fig.cap="Distribution of Predictors"}
-knitr::include_graphics("eda.png")
-```
 
+\begin{figure}[H]
+\centering
+\includegraphics[height=9cm]{./eda.png}
+\caption{Distribution of Predictors} 
+\end{figure}
 
 # Models
 
@@ -42,9 +48,12 @@ The data is split into two parts, where 2/3 of the original data is used for tra
 
 # Results
 
-```{r echo= FALSE, out.width="100%", fig.cap="ROC Comparison"}
-knitr::include_graphics("roc_comparison.png")
-```
+
+\begin{figure}[H]
+\centering
+\includegraphics[]{./roc_comparison.png}
+\caption{ROC Comparison} 
+\end{figure}
 
 Among linear methods, LDA produces the highest AUC for ROC curve (0.9949), and Regularized Logistic Regression has almost the same performance. 
 
@@ -58,6 +67,22 @@ Uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 
 
 As for test data performance, all but unstable single trees are quite constant with cross-validation performance.
 
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{1\textwidth}
+   \centering
+   \includegraphics[width=1\linewidth, height=9cm]{cross_validation1.png}
+   \caption{}
+   \label{fig:Ng1} 
+\end{subfigure}
+\begin{subfigure}[b]{1\textwidth}
+   \centering
+   \includegraphics[width=1\linewidth, height=9cm]{cross_validation2.png}
+   \caption{}
+   \label{fig:Ng2}
+\end{subfigure}
+\caption{Cross-validation} 
+\end{figure}
 
 # Conclusions
 
@@ -67,10 +92,3 @@ The variable importance provided by most models suggest that uniformity of cell 
 
 
 
-```{r echo= FALSE, out.width="100%", fig.cap="Cross-validation"}
-knitr::include_graphics("cross_validation1.png")
-```
-
-```{r echo= FALSE, out.width="100%", fig.cap="Cross-validation"}
-knitr::include_graphics("cross_validation2.png")
-```
