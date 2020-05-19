@@ -30,6 +30,50 @@ data = read_csv("data.csv") %>%
   mutate_if(is.numeric, ~replace(., is.na(.), median(., na.rm = T)))
 ```
 
+Visualization
+```{r}
+data %>%
+  filter(class == 'M') %>% 
+  keep(is.numeric) %>%
+  gather() %>% 
+  mutate(class = 'M') %>% 
+  rbind(
+  data %>%
+  filter(class == 'B') %>% 
+  keep(is.numeric) %>%
+  gather() %>% 
+  mutate(class = 'B')
+  ) %>% 
+  ggplot(aes(value, fill = class, )) +
+  facet_wrap(~ key, scales = 'free') +
+  geom_histogram(bins = 10)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+data %>% 
+  filter(class == "B") %>% 
+  keep(is.numeric) %>%  
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram(bins = 10) +
+  ggtitle("Benign Tumor")
+
+data %>% 
+  filter(class == "M") %>% 
+  keep(is.numeric) %>%  
+  gather() %>% 
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram(bins = 10) +
+  ggtitle("Malignant Tumor")
+
+data %>% 
+  ggplot(aes(x = class, fill = class)) + 
+  geom_bar()
+```
+
 ```{r}
 set.seed(2020)
 rowTrain <- createDataPartition(y = data$class,

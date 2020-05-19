@@ -19,21 +19,6 @@ library(readxl)
 
 Breast cancer is considered as one of the most common types of cancer among women all over the world, and machine learning methods for breast cancer classification has been a hot topic for many years. In this report, we want to try multiple classification methods on [Wisconsin Breast Cancer Database](https://www.kaggle.com/roustekbio/breast-cancer-csv?select=breastCancer.csv) from the University of Wisconsin Hospitals, Madison from Dr. William H. Wolberg, and compare their performance to see which one is the best for breast cancer classification.
 
-```{r, include=FALSE}
-data = read_csv("data.csv") %>% 
-  janitor::clean_names() %>% 
-  dplyr::select(-id) %>%
-  mutate(
-    class = case_when(
-      class == 2 ~ 'B',
-      class == 4 ~ 'M'
-    ) %>% as.factor(),
-    bare_nucleoli = na_if(bare_nucleoli, '?'),
-    bare_nucleoli = as.integer(bare_nucleoli)
-  ) %>%
-  mutate_if(is.numeric, ~replace(., is.na(.), median(., na.rm = T)))
-```
-
 The dataset contains `r dim(data)[1]` tumor subjects and `r dim(data)[2]-1` predictive variables, and the variable 'class' is the type of this tumor, where 'M' is malignant and 'B' is benign. Explanation for some variables:
 'clump_thickness': Thickness of clump, from 1 to 10;
 'size_uniformity': Uniformity of cell size, from 1 to 10;
@@ -41,51 +26,11 @@ The dataset contains `r dim(data)[1]` tumor subjects and `r dim(data)[2]-1` pred
 
 The variable 'bare_nucleoli' was recorded in the form of character and NA was denoted by '?'. When cleaning the data, we replace '?' by NA and fill it with median.
 
+
 # Exploratary Analysis
-
-```{r echo=FALSE, fig.height=4}
-data %>%
-  filter(class == 'M') %>% 
-  keep(is.numeric) %>%
-  gather() %>% 
-  mutate(class = 'M') %>% 
-  rbind(
-  data %>%
-  filter(class == 'B') %>% 
-  keep(is.numeric) %>%
-  gather() %>% 
-  mutate(class = 'B')
-  ) %>% 
-  ggplot(aes(value, fill = class, )) +
-  facet_wrap(~ key, scales = 'free') +
-  geom_histogram(bins = 10)
+```{r echo=FALSE, out.width="100%", fig.cap="Distribution of Predictors"}
+knitr::include_graphics("eda.png")
 ```
-
-
-```{r eval=FALSE, include=FALSE}
-data %>% 
-  filter(class == "B") %>% 
-  keep(is.numeric) %>%  
-  gather() %>% 
-  ggplot(aes(value)) +
-  facet_wrap(~ key, scales = "free") +
-  geom_histogram(bins = 10) +
-  ggtitle("Benign Tumor")
-
-data %>% 
-  filter(class == "M") %>% 
-  keep(is.numeric) %>%  
-  gather() %>% 
-  ggplot(aes(value)) +
-  facet_wrap(~ key, scales = "free") +
-  geom_histogram(bins = 10) +
-  ggtitle("Malignant Tumor")
-
-data %>% 
-  ggplot(aes(x = class, fill = class)) + 
-  geom_bar()
-```
-
 
 
 # Models
@@ -94,7 +39,12 @@ For classification task, mulyiple models are fitted to test against the data for
 
 The data is split into two parts, where 2/3 of the original data is used for training the models and the left out data will be used for testing and evaluating model performance.  
 
+
 # Results
+
+```{r echo= FALSE, out.width="100%", fig.cap="ROC Comparison"}
+knitr::include_graphics("roc_comparison.png")
+```
 
 Among linear methods, LDA produces the highest AUC for ROC curve (0.9949), and Regularized Logistic Regression has almost the same performance. 
 
@@ -115,3 +65,12 @@ Based on cross-validation training AUC, Naive Bayes is the best-performing model
 
 The variable importance provided by most models suggest that uniformity of cell size, uniformity of cell shape and bare nuclei are the most influential perdictors in breast cancer type of classification. This result also meets our expectation as in exploratory analysis we observed clusters and the particularly salient difference in Logistic regression is perhaps due to collinearity.
 
+
+
+```{r echo= FALSE, out.width="100%", fig.cap="Cross-validation"}
+knitr::include_graphics("cross_validation1.png")
+```
+
+```{r echo= FALSE, out.width="100%", fig.cap="Cross-validation"}
+knitr::include_graphics("cross_validation2.png")
+```
