@@ -79,7 +79,14 @@ The results of classification trees showes the lowest AUC among all other models
 
 For Support Vector Machines, we fit 2 models using linear kernal and radial kernal respectively. The AUC of linear kernal is 0.9949 and the AUC of radial kernal is 0.9948.
 
-Uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 important features in predicting whether the cancer is benign or malignant.
+\begin{figure}[H]
+\centering
+\includegraphics[]{./NaiveBayesVarImp.png}
+\caption{Variable Importance from Naive Bayes Model} 
+\end{figure}
+
+We select the best model, i.e., Naive Bayes model to explore the variable importance. According to the plot above, uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 important features in predicting whether the cancer is benign or malignant.
+
 
 As for test data performance, all but unstable single trees are quite constant with cross-validation performance. We choose Naive Bayes as our final model and yield the confusion matrix below:
 
@@ -112,6 +119,8 @@ confusionMatrix(data = as.factor(testpred),
 ```
 
 The overall accuracy is 0.9526, which is quite satisfying. We can see the sensitivity is rather low and specificity is high, indicating that this classification model is suitable for ruling out almost everyone who doesn't have the disease and won't generate many false-positive results. For example, this method can served as the second test for patients who are positive for the first test.
+
+
 
 And below is the visualization of cross-validation:
 
