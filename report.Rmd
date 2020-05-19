@@ -49,11 +49,15 @@ data = read_csv("data.csv") %>%
   mutate_if(is.numeric, ~replace(., is.na(.), median(., na.rm = T)))
 ```
 
+
 \begin{figure}[H]
 \centering
 \includegraphics[height=9cm]{./eda.png}
 \caption{Distribution of Predictors} 
 \end{figure}
+
+We visualize the distributions of all predictive variables stratified by class (Malignant or Benign). The distributions are different across the class.
+
 
 # Models
 
@@ -79,16 +83,17 @@ The results of classification trees showes the lowest AUC among all other models
 
 For Support Vector Machines, we fit 2 models using linear kernal and radial kernal respectively. The AUC of linear kernal is 0.9949 and the AUC of radial kernal is 0.9948.
 
+Therefore we select Naive Bayes as our final model.
+
 \begin{figure}[H]
 \centering
 \includegraphics[]{./NaiveBayesVarImp.png}
 \caption{Variable Importance from Naive Bayes Model} 
 \end{figure}
 
-We select the best model, i.e., Naive Bayes model to explore the variable importance. According to the plot above, uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 important features in predicting whether the cancer is benign or malignant.
+Naive Bayes model is used to explore the variable importance. According to the plot above, uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 important features in predicting whether the cancer is benign or malignant.
 
-
-As for test data performance, all but unstable single trees are quite constant with cross-validation performance. We choose Naive Bayes as our final model and yield the confusion matrix below:
+As for test data performance, all but unstable single trees are quite constant with cross-validation performance. We evealuate the final model on test set and yield the confusion matrix below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 set.seed(2020)
