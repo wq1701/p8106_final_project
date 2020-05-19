@@ -96,6 +96,8 @@ glm.fit = train(class~., data,
                  trControl = ctrl)
 
 var_glm = varImp(glm.fit)$importance
+
+summary(glm.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
 ```
 
 *Regularized logistic regression*
@@ -117,6 +119,9 @@ glmn_plot = plot(glmn.fit, xTrans = function(x) log(x),
 glmn.fit$bestTune
 
 var_glmn = varImp(glmn.fit)$importance
+
+summary(glmn.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 *LDA*
@@ -130,6 +135,9 @@ lda.fit <- train(class~., as.data.frame(data),
 
 # need to convert data in lda to data frame, otherwise varImp doesnt work
 var_lda = varImp(lda.fit)$importance
+
+summary(lda.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 Discriminant analysis
@@ -143,6 +151,9 @@ qda.fit <- train(class~., as.data.frame(data),
                    trControl = ctrl)
 
 var_qda = varImp(qda.fit)$importance
+
+summary(qda.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 *Naive Bayes (NB)*
@@ -163,6 +174,15 @@ nb_plot = plot(nb.fit,
                  xlab = 'adjust', ylab = 'ROC') 
 
 var_nb = varImp(nb.fit)$importance
+
+vi_nb = varImp(nb.fit)
+
+nb_var_imp = ggplot(vi_nb, top = dim(vi_nb$importance)[1])
+
+ggsave("NaiveBayesVarImp.png", plot = nb_var_imp, width = 8, height = 4)
+
+summary(nb.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 KNN
@@ -178,6 +198,9 @@ knn_plot = ggplot(knn.fit, highlight = T) +
   labs(title="KNN", y = "ROC")
 
 var_knn = varImp(knn.fit)$importance
+
+summary(knn.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 Tree-based methods
@@ -196,6 +219,13 @@ cart_plot = ggplot(rpart.fit, highlight = TRUE) +
 rpart.plot(rpart.fit$finalModel)
 
 var_rpart = varImp(rpart.fit)$importance
+
+# vi_rpart = varImp(rpart.fit)
+
+# ggplot(vi_rpart, top = dim(vi_rpart$importance)[1])
+
+summary(rpart.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 #### CIT
@@ -215,6 +245,9 @@ cit_plot = ggplot(ctree.fit, highlight = TRUE) +
 plot(ctree.fit$finalModel)
 
 var_ctree = varImp(ctree.fit)$importance
+
+summary(ctree.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 Ensemble methods
@@ -234,6 +267,9 @@ rf_plot = ggplot(rf.fit, highlight = TRUE) +
   labs(title="Random Forests", x = "mtry", y = "ROC")
 
 # varImp(rf.fit)
+
+summary(rf.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 *Boosting*
@@ -258,6 +294,9 @@ gbmB_plot = ggplot(gbmB.fit, highlight = TRUE) +
       y = "ROC")
 
 # varImp(gbmB.fit)
+
+summary(gbmB.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 #### AdaBoost
@@ -280,6 +319,9 @@ gbmA_plot = ggplot(gbmA.fit, highlight = TRUE) +
   labs(title="AdaBoost", y = "ROC")
 
 # varImp(gbmA.fit)
+
+summary(gbmA.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 Support vector machines
@@ -296,6 +338,9 @@ svml_plot = ggplot(svml.fit, highlight = TRUE) +
   labs(title="SVM with Linear Boundary", x = "cost", y = "ROC")
 
 var_svml = varImp(svml.fit)$importance
+
+summary(svml.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 *Radial kernal*
@@ -313,6 +358,9 @@ svmr_plot = ggplot(svmr.fit, highlight = TRUE)+
   labs(title="SVM with Radial Kernal", y = "ROC")
 
 var_svmr = varImp(svmr.fit)$importance
+
+summary(svmr.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
 Visualization
@@ -457,5 +505,22 @@ varImpTable = left_join(tt_glm, tt_glmn, by = "Variable") %>%
   left_join(., tt_ctree, by = "Variable") %>% 
   left_join(., tt_svml, by = "Variable") %>% 
   left_join(., tt_svmr, by = "Variable")
+```
+
+```{r}
+# varImpTable %>% 
+#   gather(key = "key", value = "value", -Variable) %>% 
+#   ggplot(aes(x = Variable, y = value)) + 
+#   geom_col() + 
+#   facet_wrap(~key)
+```
+
+# variable importance plot 
+
+```{r}
+
+
+summary(svmr.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
 ```
 
