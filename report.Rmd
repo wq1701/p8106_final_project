@@ -43,17 +43,26 @@ The variable 'bare_nucleoli' was recorded in the form of character and NA was de
 
 # Exploratary Analysis
 
-
 ```{r echo=FALSE, fig.height=4}
 data %>%
-  keep(is.numeric) %>%  
+  filter(class == 'M') %>% 
+  keep(is.numeric) %>%
   gather() %>% 
-  ggplot(aes(value)) +
-  facet_wrap(~ key, scales = "free") +
+  mutate(class = 'M') %>% 
+  rbind(
+  data %>%
+  filter(class == 'B') %>% 
+  keep(is.numeric) %>%
+  gather() %>% 
+  mutate(class = 'B')
+  ) %>% 
+  ggplot(aes(value, fill = class, )) +
+  facet_wrap(~ key, scales = 'free') +
   geom_histogram(bins = 10)
 ```
 
-```{r}
+
+```{r eval=FALSE, include=FALSE}
 data %>% 
   filter(class == "B") %>% 
   keep(is.numeric) %>%  
@@ -77,18 +86,32 @@ data %>%
   geom_bar()
 ```
 
-```{r}
-
-```
 
 
 # Models
 
-For classification task, mulyiple models are fitted to test against the data for evaluating performance. For linear methods, Logistic and Regularized Logistic regression are fitted; For discriminant analysis, LDA, QDA, and Naive Bayes methods are used; Tree-based methods are implemented as well, including Random Forest, Boosting. All models are builed using the caret package, and the optimal model is selected based on maximizing ROC with 10-fold cross-validation, repeated five times.
+For classification task, mulyiple models are fitted to test against the data for evaluating performance. For linear methods, Logistic, Regularized Logistic regression and LDA are fitted; For discriminant analysis, QDA and Naive Bayes methods are used; Tree-based methods are implemented as well, including Random Forest, Boosting; Support Vector Machines are considered as well. All models are builed using the caret package, and the optimal model is selected based on maximizing ROC with 10-fold cross-validation, repeated five times.
 
-The data is split into two part, where 2/3 of the original data is used for training the models and the left out data will be used for testing and evaluating model performance.  
+The data is split into two parts, where 2/3 of the original data is used for training the models and the left out data will be used for testing and evaluating model performance.  
 
 # Results
 
+Among linear methods, LDA produces the highest AUC for ROC curve (0.9949), and Regularized Logistic Regression has almost the same performance. 
+
+The best tuned quadratic discriminant model is Naive Bayes which produces the highest AUC (0.996) among the 3 non-linear models.
+
+The results of classification trees showes the lowest AUC among all other models, as flexibility lower the level of predictive accuracy. By aggregating decision trees, the predictive performances of trees are substantially improved, AUC are up to 0.99. 
+
+For Support Vector Machines, we fit 2 models using linear kernal and radial kernal respectively. The AUC of linear kernal is 0.9949 and the AUC of radial kernal is 0.9948.
+
+Uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 important features in predicting whether the cancer is benign or malignant.
+
+As for test data performance, all but unstable single trees are quite constant with cross-validation performance.
+
+
 # Conclusions
+
+Based on cross-validation training AUC, Naive Bayes is the best-performing model among all, and SVM with linear kernal, Adaboost and LDA are the best-performing models in their own categories respectively. All fitted models had good AUC (>0.9) and most of them as high as 0.99, this meets our expectation, since from the density plot we could see that the distributions of most predictors under each catergories are well-separated. 
+
+The variable importance provided by most models suggest that uniformity of cell size, uniformity of cell shape and bare nuclei are the most influential perdictors in breast cancer type of classification. This result also meets our expectation as in exploratory analysis we observed clusters and the particularly salient difference in Logistic regression is perhaps due to collinearity.
 

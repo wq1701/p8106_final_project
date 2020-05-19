@@ -12,6 +12,7 @@ library(caret)
 library(rpart.plot)
 library(gridExtra)
 library(readxl)
+library(pROC)
 ```
 
 ```{r}
@@ -31,7 +32,7 @@ data = read_csv("data.csv") %>%
 
 ```{r}
 set.seed(2020)
-rowTrain <- createdataPartition(y = data$class,
+rowTrain <- createDataPartition(y = data$class,
                                 p = 2/3,
                                 list = FALSE)
 ```
@@ -50,7 +51,7 @@ glm.fit = train(class~., data,
                  metric = "ROC",
                  trControl = ctrl)
 
-varImp(glm.fit)
+var_glm = varImp(glm.fit)$importance
 ```
 
 *Regularized logistic regression*
@@ -66,13 +67,14 @@ glmn.fit <- train(class~., data,
                     metric = "ROC",
                     trControl = ctrl)
 glmn_plot = plot(glmn.fit, xTrans = function(x) log(x), 
-                 highlight = T)   
+                 highlight = T,
+                 main = 'Regularized logistic regression',
+                 xlab = 'log(lambda)', ylab = 'ROC')   
 glmn.fit$bestTune
 
-varImp(glmn.fit)
+var_glmn = varImp(glmn.fit)$importance
 ```
 
-Discriminant analysis
 *LDA*
 ```{r}
 set.seed(2020)
@@ -83,9 +85,10 @@ lda.fit <- train(class~., as.data.frame(data),
                    trControl = ctrl)
 
 # need to convert data in lda to data frame, otherwise varImp doesnt work
-varImp(lda.fit) 
+var_lda = varImp(lda.fit)$importance
 ```
 
+Discriminant analysis
 *QDA*
 ```{r}
 set.seed(2020)
@@ -95,7 +98,7 @@ qda.fit <- train(class~., as.data.frame(data),
                    metric = "ROC",
                    trControl = ctrl)
 
-varImp(qda.fit)
+var_qda = varImp(qda.fit)$importance
 ```
 
 *Naive Bayes (NB)*
@@ -110,10 +113,12 @@ nb.fit <- train(class~., as.data.frame(data),
                   tuneGrid = nbGrid,
                   metric = "ROC",
                   trControl = ctrl)
-nb_plot = plot(nb.fit, xTrans = function(x) log(x), 
-                 highlight = T) 
+nb_plot = plot(nb.fit, 
+                 highlight = T,
+                 main = 'Naive Bayes',
+                 xlab = 'adjust', ylab = 'ROC') 
 
-varImp(nb.fit)
+var_nb = varImp(nb.fit)$importance
 ```
 
 KNN
@@ -125,9 +130,10 @@ knn.fit <- train(class~., as.data.frame(data),
                    preProcess = c("center","scale"),
                    tuneGrid = data.frame(k = seq(1,200,by=5)),
                    trControl = ctrl)
-knn_plot = ggplot(knn.fit, highlight = T)
+knn_plot = ggplot(knn.fit, highlight = T) + 
+  labs(title="KNN", y = "ROC")
 
-varImp(knn.fit)
+var_knn = varImp(knn.fit)$importance
 ```
 
 Tree-based methods
@@ -140,10 +146,12 @@ rpart.fit <- train(class~., data,
                    tuneGrid = data.frame(cp = exp(seq(-6,-3, len = 20))),
                    trControl = ctrl,
                    metric = "ROC")
-cart_plot = ggplot(rpart.fit, highlight = TRUE)
+cart_plot = ggplot(rpart.fit, highlight = TRUE) + 
+  labs(title="CART", x = "cp", y = "ROC")
+
 rpart.plot(rpart.fit$finalModel)
 
-varImp(rpart.fit)
+var_rpart = varImp(rpart.fit)$importance
 ```
 
 #### CIT
@@ -158,10 +166,11 @@ ctree.fit <- train(class~., as.data.frame(data),
                    metric = "ROC",
                    trControl = ctrl)
 
-cit_plot = ggplot(ctree.fit, highlight = TRUE)
+cit_plot = ggplot(ctree.fit, highlight = TRUE) + 
+  labs(title="CIT", x = "min criterion", y = "ROC")
 plot(ctree.fit$finalModel)
 
-varImp(ctree.fit)
+var_ctree = varImp(ctree.fit)$importance
 ```
 
 Ensemble methods
@@ -177,7 +186,8 @@ rf.fit <- train(class~., as.data.frame(data),
                 tuneGrid = rf.grid,
                 metric = "ROC",
                 trControl = ctrl)
-rf_plot = ggplot(rf.fit, highlight = TRUE)
+rf_plot = ggplot(rf.fit, highlight = TRUE) + 
+  labs(title="Random Forests", x = "mtry", y = "ROC")
 
 # varImp(rf.fit)
 ```
@@ -199,7 +209,9 @@ gbmB.fit <- train(class~., data,
                  distribution = "bernoulli",
                  metric = "ROC",
                  verbose = FALSE)
-gbmB_plot = ggplot(gbmB.fit, highlight = TRUE)
+gbmB_plot = ggplot(gbmB.fit, highlight = TRUE) + 
+  labs(title="Binomial Loss Boosting", 
+      y = "ROC")
 
 # varImp(gbmB.fit)
 ```
@@ -220,7 +232,8 @@ gbmA.fit <- train(class~., data,
                  distribution = "adaboost",
                  metric = "ROC",
                  verbose = FALSE)
-gbmA_plot = ggplot(gbmA.fit, highlight = TRUE)
+gbmA_plot = ggplot(gbmA.fit, highlight = TRUE) + 
+  labs(title="AdaBoost", y = "ROC")
 
 # varImp(gbmA.fit)
 ```
@@ -235,9 +248,10 @@ svml.fit <- train(class~., as.data.frame(data),
                   preProcess = c("center", "scale"),
                   tuneGrid = data.frame(cost = exp(seq(-6,-2,len=20))),
                   trControl = ctrl)
-svml_plot = ggplot(svml.fit, highlight = TRUE)
+svml_plot = ggplot(svml.fit, highlight = TRUE) + 
+  labs(title="SVM with Linear Boundary", x = "cost", y = "ROC")
 
-varImp(svml.fit)
+var_svml = varImp(svml.fit)$importance
 ```
 
 *Radial kernal*
@@ -251,17 +265,21 @@ svmr.fit <- train(class~., as.data.frame(data),
                   preProcess = c("center", "scale"),
                   tuneGrid = svmr.grid,
                   trControl = ctrl)
-svmr_plot = ggplot(svmr.fit, highlight = TRUE)
+svmr_plot = ggplot(svmr.fit, highlight = TRUE)+ 
+  labs(title="SVM with Radial Kernal", y = "ROC")
 
-varImp(svmr.fit)
+var_svmr = varImp(svmr.fit)$importance
 ```
 
 Visualization
 
 ```{r}
-grid.arrange(glmn_plot, nb_plot, knn_plot,
-             cart_plot, cit_plot, rf_plot,
-             gbmB_plot, gbmA_plot, svml_plot, svmr_plot)
+grid.arrange(knn_plot, cart_plot, cit_plot, svml_plot, ncol=2)
+```
+
+```{r}
+grid.arrange(glmn_plot, nb_plot, rf_plot, gbmB_plot, 
+             gbmA_plot, svmr_plot, ncol=2)
 ```
 
 
@@ -297,8 +315,8 @@ ctree.pred <- predict(ctree.fit, newdata = data[-rowTrain,], type = "prob")[,1]
 rf.pred <- predict(rf.fit, newdata = data[-rowTrain,], type = "prob")[,1]
 gbmB.pred <- predict(gbmB.fit, newdata = data[-rowTrain,], type = "prob")[,1]
 gbmA.pred <- predict(gbmA.fit, newdata = data[-rowTrain,], type = "prob")[,1]
-pred.svml <- predict(svml.fit, newdata = data[-rowTrain,], type = "prob")[,1]
-pred.svmr <- predict(svmr.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+svml.pred <- predict(svml.fit, newdata = data[-rowTrain,], type = "prob")[,1]
+svmr.pred <- predict(svmr.fit, newdata = data[-rowTrain,], type = "prob")[,1]
 
 roc.glm <- roc(data$class[-rowTrain], glm.pred)
 roc.glmn <- roc(data$class[-rowTrain], glmn.pred)
@@ -337,5 +355,63 @@ auc <- c(roc.glm$auc[1], roc.glmn$auc[1], roc.lda$auc[1],
 modelNames <- c("glm","glmn","lda","qda","nb","knn","rpart","ctree","rf","gbmA","gbmB","svml","svmr")
 legend("bottomright", legend = paste0(modelNames, ": ", round(auc,3)),
        col = 1:13, lwd = 2)
+```
+
+variable importance table
+```{r}
+clean_var_table = function(table) {
+  # vc: variable columns
+  if (ncol(table) == 1) {
+    table = table %>% 
+      rownames_to_column() %>% 
+      janitor::clean_names() %>% 
+      rename('Importance' = `overall`, 
+             'Variable' = `rowname`)
+    
+    return(table)
+    
+  } else if (ncol(table) == 2) {
+    table = table %>% 
+      rownames_to_column() %>% 
+      janitor::clean_names() %>% 
+      select(rowname, `b`) %>% 
+      rename('Importance' = `b`, 
+             'Variable' = `rowname`)
+    
+    return(table)
+      
+  }
+}
+
+tt_ctree = clean_var_table(table = var_ctree) %>% 
+  rename(ctree = `Importance`)
+tt_glm = clean_var_table(table = var_glm) %>% 
+  rename(glm = `Importance`)
+tt_glmn = clean_var_table(table = var_glmn) %>% 
+  rename(glmn = `Importance`)
+tt_knn = clean_var_table(table = var_knn) %>% 
+  rename(knn = `Importance`)
+tt_lda = clean_var_table(table = var_lda) %>% 
+  rename(lda = `Importance`)
+tt_nb = clean_var_table(table = var_nb) %>% 
+  rename(nb = `Importance`)
+tt_qda = clean_var_table(table = var_qda) %>% 
+  rename(qda = `Importance`)
+tt_rpart = clean_var_table(table = var_rpart) %>% 
+  rename(rpart = `Importance`)
+tt_svml = clean_var_table(table = var_svml) %>% 
+  rename(svml = `Importance`)
+tt_svmr = clean_var_table(table = var_svmr) %>% 
+  rename(svmr = `Importance`)
+
+varImpTable = left_join(tt_glm, tt_glmn, by = "Variable") %>% 
+  left_join(., tt_lda, by = "Variable") %>% 
+  left_join(., tt_qda, by = "Variable") %>% 
+  left_join(., tt_nb, by = "Variable") %>% 
+  left_join(., tt_knn, by = "Variable") %>% 
+  left_join(., tt_rpart, by = "Variable") %>% 
+  left_join(., tt_ctree, by = "Variable") %>% 
+  left_join(., tt_svml, by = "Variable") %>% 
+  left_join(., tt_svmr, by = "Variable")
 ```
 
