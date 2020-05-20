@@ -1,7 +1,7 @@
 ---
 title: "P8106 Final Report"
 output: pdf_document
-author: "Si Li, Weiwei Qi and Qimin Zhang"
+author: "Si Li (), Weiwei Qi (wq2151), and Qimin Zhang (qz2392)"
 editor_options: 
   chunk_output_type: console
 urlcolor: blue
@@ -62,7 +62,7 @@ We visualize the distributions of all predictive variables stratified by class (
 # Models
 
 
-For classification task, mulyiple models are fitted to test against the data for evaluating performance. For linear methods, Logistic, Regularized Logistic regression and LDA are fitted; For discriminant analysis, QDA and Naive Bayes methods are used; Tree-based methods are implemented as well, including Random Forest, Boosting; Support Vector Machines are considered as well. All models are builed using the caret package, and the optimal model is selected based on maximizing ROC with 10-fold cross-validation, repeated five times. And below is the visualization of cross-validation:
+For classification tasks, multiple models are fitted to test against the data for evaluating performance. For linear methods, Logistic, Regularized Logistic regression and LDA are fitted; For discriminant analysis, QDA and Naive Bayes methods are used; Tree-based methods are implemented as well, including Random Forest, Boosting; Support Vector Machines are considered as well. All models are built using the caret package, and the optimal model is selected based on maximizing ROC with 10-fold cross-validation, repeated five times. And below is the visualization of cross-validation:
 
 \begin{figure}[H]
 \centering
@@ -95,7 +95,7 @@ The best tuned quadratic discriminant model is Naive Bayes which produces the hi
 
 The results of classification trees showes the lowest AUC among all other models, as flexibility lower the level of predictive accuracy. By aggregating decision trees, the predictive performances of trees are substantially improved, AUC are up to 0.99. 
 
-For Support Vector Machines, we fit 2 models using linear kernal and radial kernal respectively. The AUC of linear kernal is 0.9949 and the AUC of radial kernal is 0.9948.
+For Support Vector Machines, we fit 2 models using linear kernel and radial kernel respectively. The AUC of linear kernel is 0.9949 and the AUC of radial kernel is 0.9948.
 
 Therefore we select Naive Bayes as our final model.
 
@@ -107,7 +107,7 @@ Therefore we select Naive Bayes as our final model.
 
 Naive Bayes model is used to explore the variable importance. According to the plot above, uniformity of cell size, uniformity of cell shape and bare nuclei are the top 3 important features in predicting whether the cancer is benign or malignant.
 
-As for test data performance, all but unstable single trees are quite constant with cross-validation performance. We evealuate the final model on test set and yield the confusion matrix below:
+As for test data performance, all but unstable single trees are quite constant with cross-validation performance. We evaluate the final model on test set and yield the confusion matrix below:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 set.seed(2020)
@@ -137,15 +137,15 @@ confusionMatrix(data = as.factor(testpred),
                 positive = "M")
 ```
 
-The overall accuracy is 0.9526, which is quite satisfying. We can see the sensitivity is rather low and specificity is high, indicating that this classification model is suitable for ruling out almost everyone who doesn't have the disease and won't generate many false-positive results. For example, this method can served as the second test for patients who are positive for the first test.
+The overall accuracy is 0.9526, which is quite satisfying. We can see the sensitivity is rather low and specificity is high, indicating that this classification model is suitable for ruling out almost everyone who doesn't have the disease and won't generate many false-positive results. For example, this method can serve as the second test for patients who are positive for the first test.
 
-Naive Bayes assumes features are independent in each class while the truth may not be like that. It's also useful when number of predictors is large, but in this case the number of predictors is not large.
+Naive Bayes assumes features are independent in each class while the truth may not be like that. It's also useful when the number of predictors is large, but in this case the number of predictors is not large.
 
 # Conclusions
 
-Based on cross-validation training AUC, Naive Bayes is the best-performing model among all, and SVM with linear kernal, Adaboost and LDA are the best-performing models in their own categories respectively. All fitted models had good AUC (>0.9) and most of them as high as 0.99, this meets our expectation, since from the density plot we could see that the distributions of most predictors under each catergories are well-separated. 
+Based on cross-validation training AUC, Naive Bayes is the best-performing model among all, and SVM with linear kernal, Adaboost and LDA are the best-performing models in their own categories respectively. All fitted models had good AUC (>0.9) and most of them were as high as 0.99, this meets our expectation, since from the density plot we could see that the distributions of most predictors under each category are well-separated. 
 
-The variable importance provided by most models suggest that uniformity of cell size, uniformity of cell shape and bare nuclei are the most influential perdictors in breast cancer type of classification. This result also meets our expectation as in exploratory analysis we observed clusters and the particularly salient difference in Logistic regression is perhaps due to collinearity.
+The variable importance provided by most models suggest that uniformity of cell size, uniformity of cell shape and bare nuclei are the most influential predictors in breast cancer type of classification. This result also meets our expectation as in exploratory analysis we observed clusters and the particularly salient difference in Logistic regression is perhaps due to collinearity.
 
 
 
