@@ -81,8 +81,11 @@ For classification task, mulyiple models are fitted to test against the data for
 \caption{Cross-validation} 
 \end{figure}
 
+<<<<<<< HEAD
 Below is the ROC comparison:
 
+=======
+>>>>>>> 1fd18b93788d9cf6553a8435143da51b0e5e89ff
 \begin{figure}[H]
 \centering
 \includegraphics[]{./roc_comparison.png}
