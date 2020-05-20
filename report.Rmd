@@ -66,9 +66,6 @@ For classification task, mulyiple models are fitted to test against the data for
 The data is split into two parts, where 2/3 of the original data is used for training the models and the left out data will be used for testing and evaluating model performance.  
 
 
-# Results
-
-
 \begin{figure}[H]
 \centering
 \includegraphics[]{./roc_comparison.png}
