@@ -1,7 +1,7 @@
 ---
 title: "P8106 Final Report"
 output: pdf_document
-author: "Si Li (), Weiwei Qi (wq2151), and Qimin Zhang (qz2392)"
+author: "Si Li (sl4657), Weiwei Qi (wq2151), and Qimin Zhang (qz2392)"
 editor_options: 
   chunk_output_type: console
 urlcolor: blue
