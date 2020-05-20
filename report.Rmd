@@ -52,7 +52,7 @@ data = read_csv("data.csv") %>%
 
 \begin{figure}[H]
 \centering
-\includegraphics[height=9cm]{./eda.png}
+\includegraphics[height=8cm]{./eda.png}
 \caption{Distribution of Predictors} 
 \end{figure}
 
@@ -68,24 +68,21 @@ For classification task, mulyiple models are fitted to test against the data for
 \centering
 \begin{subfigure}[b]{1\textwidth}
    \centering
-   \includegraphics[width=1\linewidth, height=9cm]{cross_validation1.png}
+   \includegraphics[width=1\linewidth, height=7cm]{cross_validation1.png}
    \caption{}
    \label{fig:Ng1} 
 \end{subfigure}
 \begin{subfigure}[b]{1\textwidth}
    \centering
-   \includegraphics[width=1\linewidth, height=9cm]{cross_validation2.png}
+   \includegraphics[width=1\linewidth, height=7cm]{cross_validation2.png}
    \caption{}
    \label{fig:Ng2}
 \end{subfigure}
 \caption{Cross-validation} 
 \end{figure}
 
-<<<<<<< HEAD
 Below is the ROC comparison:
 
-=======
->>>>>>> 1fd18b93788d9cf6553a8435143da51b0e5e89ff
 \begin{figure}[H]
 \centering
 \includegraphics[]{./roc_comparison.png}
@@ -142,7 +139,7 @@ confusionMatrix(data = as.factor(testpred),
 
 The overall accuracy is 0.9526, which is quite satisfying. We can see the sensitivity is rather low and specificity is high, indicating that this classification model is suitable for ruling out almost everyone who doesn't have the disease and won't generate many false-positive results. For example, this method can served as the second test for patients who are positive for the first test.
 
-
+Naive Bayes assumes features are independent in each class while the truth may not be like that. It's also useful when number of predictors is large, but in this case the number of predictors is not large.
 
 # Conclusions
 
