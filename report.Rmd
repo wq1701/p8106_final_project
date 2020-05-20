@@ -29,7 +29,7 @@ The dataset contains `r dim(data)[1]` tumor subjects and `r dim(data)[2]-1` pred
 'size_uniformity': Uniformity of cell size, from 1 to 10;
 'bland_chromatin': Bland chromatin, from 1 to 10.
 
-The variable 'bare_nucleoli' was recorded in the form of character and NA was denoted by '?'. When cleaning the data, we replace '?' by NA and fill it with median.
+The variable 'bare_nucleoli' was recorded in the form of character and NA was denoted by '?'. When cleaning the data, we replace '?' by NA and fill it with median. The data is split into two parts, where 2/3 of the original data is used for training the models and the left out data will be used for testing and evaluating model performance. 
 
 
 # Exploratary Analysis
@@ -61,13 +61,27 @@ We visualize the distributions of all predictive variables stratified by class (
 
 # Models
 
-For classification task, mulyiple models are fitted to test against the data for evaluating performance. For linear methods, Logistic, Regularized Logistic regression and LDA are fitted; For discriminant analysis, QDA and Naive Bayes methods are used; Tree-based methods are implemented as well, including Random Forest, Boosting; Support Vector Machines are considered as well. All models are builed using the caret package, and the optimal model is selected based on maximizing ROC with 10-fold cross-validation, repeated five times.
 
-The data is split into two parts, where 2/3 of the original data is used for training the models and the left out data will be used for testing and evaluating model performance.  
+For classification task, mulyiple models are fitted to test against the data for evaluating performance. For linear methods, Logistic, Regularized Logistic regression and LDA are fitted; For discriminant analysis, QDA and Naive Bayes methods are used; Tree-based methods are implemented as well, including Random Forest, Boosting; Support Vector Machines are considered as well. All models are builed using the caret package, and the optimal model is selected based on maximizing ROC with 10-fold cross-validation, repeated five times. And below is the visualization of cross-validation:
 
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{1\textwidth}
+   \centering
+   \includegraphics[width=1\linewidth, height=9cm]{cross_validation1.png}
+   \caption{}
+   \label{fig:Ng1} 
+\end{subfigure}
+\begin{subfigure}[b]{1\textwidth}
+   \centering
+   \includegraphics[width=1\linewidth, height=9cm]{cross_validation2.png}
+   \caption{}
+   \label{fig:Ng2}
+\end{subfigure}
+\caption{Cross-validation} 
+\end{figure}
 
-# Results
-
+Below is the ROC comparison:
 
 \begin{figure}[H]
 \centering
@@ -126,25 +140,6 @@ confusionMatrix(data = as.factor(testpred),
 The overall accuracy is 0.9526, which is quite satisfying. We can see the sensitivity is rather low and specificity is high, indicating that this classification model is suitable for ruling out almost everyone who doesn't have the disease and won't generate many false-positive results. For example, this method can served as the second test for patients who are positive for the first test.
 
 
-
-And below is the visualization of cross-validation:
-
-\begin{figure}[H]
-\centering
-\begin{subfigure}[b]{1\textwidth}
-   \centering
-   \includegraphics[width=1\linewidth, height=9cm]{cross_validation1.png}
-   \caption{}
-   \label{fig:Ng1} 
-\end{subfigure}
-\begin{subfigure}[b]{1\textwidth}
-   \centering
-   \includegraphics[width=1\linewidth, height=9cm]{cross_validation2.png}
-   \caption{}
-   \label{fig:Ng2}
-\end{subfigure}
-\caption{Cross-validation} 
-\end{figure}
 
 # Conclusions
 
